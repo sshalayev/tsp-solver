@@ -1,0 +1,24 @@
+{
+  "name": "tsp-solver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sshalayev/tsp-solver.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sshalayev/tsp-solver/issues"
+  },
+  "homepage": "https://github.com/sshalayev/tsp-solver#readme",
+  "dependencies": {
+    "bluebird": "^3.7.1",
+    "moment": "^2.24.0",
+    "yargs": "^14.2.0"
+  }
+}
