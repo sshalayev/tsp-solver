@@ -22,7 +22,7 @@ class SimAnnealSolution {
     }
 
     getCost(){
-        return SimAnnealSolution.calculateCost(this.points);
+        return SimAnnealSolution.calculateCost(this.points, this._closed);
     }
 
     export(){
@@ -43,14 +43,15 @@ class SimAnnealSolution {
             && this.points.every((p, i, a) => p.equals(solution.points[(i + startIndex) % a.length]));
     }
 
-    static calculateCost(points){
-        return points.reduce((res, point) => {
+    static calculateCost(points, isClosed = true){
+        const {cost} = points.reduce((res, point) => {
             if (res.prev){
                 res.cost += res.prev.getDistance(point);
             }
             res.prev = point;
             return res;
-        }, {cost: 0, prev: null}).cost
+        }, {cost: 0, prev: null});
+        return isClosed ? cost + points[points.length - 1].getDistance(points[0]) : cost;
     }
 }
 class SimAnneal {
@@ -60,6 +61,7 @@ class SimAnneal {
             this._base.push(this._base[0])
         }
         this._state = Permutation.getRandomPermutation(Permutation.getNumberSequence(base.length, 0));
+        //this._state = Array(base.length).fill(0).map((_, i) => i);
         this._step = 1;
         this._start = maxTemperature;
         this._temperature = maxTemperature;
@@ -67,6 +69,7 @@ class SimAnneal {
         this._results = [];
         this._solutions = [];
         this._exact = null;
+        this._closed = !!isClosed;
         if (this._base.length < 10){
             this.bruteForce().then((result) => {
                 this._exact = new SimAnnealSolution(result.state);
@@ -97,6 +100,9 @@ class SimAnneal {
     get isRunning(){
         return this._step > 1 && this._temperature > this._limit;
     }
+    get isClosed(){
+        return this._closed;
+    }
     get info(){
         return `Route length: ${this.currentCost} Step: ${this._step} Temperature: ${this._temperature}`
     }
@@ -110,7 +116,7 @@ class SimAnneal {
 
     calculateCost(state){
         const points = this.getState(state);
-        return SimAnnealSolution.calculateCost(points);
+        return SimAnnealSolution.calculateCost(points, this._closed);
     }
 
     calculateProbability(deltaCost){
@@ -148,7 +154,7 @@ class SimAnneal {
     }
 
     next(){
-        if (this.isDone || this._step > 100000){
+        if (this.isDone || this._step > 5000000){
             this.stop();
             return false;
         }
